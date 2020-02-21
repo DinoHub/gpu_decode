@@ -1,0 +1,2 @@
+# ffmpeg -y -vsync 0 -hwaccel cuvid -vcodec h264_cuvid -i rtsp://localhost:8554/stream -vcodec h264_nvenc -an test_gpu.mp4
+ffmpeg -y -hwaccel cuvid -c:v h264_cuvid -vsync 0 -max_delay 500000 -reorder_queue_size 10000 -i rtsp://localhost:8554/stream -f rawvideo -pix_fmt yuv420p -preset slow -an -sn -vf fps=15 test_gpu_py.mp4
