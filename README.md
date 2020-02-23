@@ -10,3 +10,12 @@ This way, the videoreader will use the h264_cuvid codec.
 If your source is an rtsp one, add the entry rtsp_transport;tcp ; so the envvar becomes :
 OPENCV_FFMPEG_CAPTURE_OPTIONS="video_codec;h264_cuvid|rtsp_transport;tcp"
 
+
+Compile and install ffmpeg from source
+```
+git clone https://git.ffmpeg.org/ffmpeg.git
+git checkout n3.4.7
+./configure --enable-cuda --enable-cuvid --enable-nvenc --enable-nonfree --enable-libnpp --extra-cflags=-I/usr/local/cuda/include --extra-ldflags=-L/usr/local/cuda/lib64
+make
+sudo make install
+```
