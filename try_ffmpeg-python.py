@@ -5,8 +5,11 @@ import numpy as np
 import tensorflow as tf
 
 # vp = '/home/dh/Videos/CatDog.avi'
-vp = '/videos/CatDog.avi'
-# vp = 'rtsp://localhost:8554/stream'
+# vp = '/videos/CatDog.avi'
+# vp = 'rtsp://192.168.1.39:554/stream'
+# vp = 'rtsp://wowzaec2demo.streamlock.net/vod/mp4:BigBuckBunny_115k.mov'
+# vp ='rtsp://170.93.143.139/rtplive/470011e600ef003a004ee33696235daa'
+vp = 'rtsp://localhost:8554/stream'
 
 # width = 1920
 # height = 1080
@@ -20,12 +23,13 @@ print('probe w x h: {}x{}'.format(width, height))
 process = (
     ffmpeg
     # .input(vp)
-    .input(vp, hwaccel='cuvid', vcodec='h264_cuvid')
-    # .output('pipe:', format='rawvideo', vf="scale_npp=format=yuv420p,hwdownload,format=yuv420p", pix_fmt='yuvj420p')
+    # .input(vp, hwaccel='cuvid', vcodec='h264_cuvid')
+    .input(vp, hwaccel='cuvid', vcodec='h264_cuvid', r='1',rtsp_transport='udp', thread_queue_size='8888')
     .output('pipe:', format='rawvideo', vf="scale_npp=format=yuv420p,hwdownload,format=yuv420p", pix_fmt='yuvj420p')
-    # .output('pipe:', format='rawvideo', vf="scale_npp=format=yuv420p,hwdownload,format=yuv420p", pix_fmt='yuvj420p', s='1920x1080')
+    # .output('pipe:', format='rawvideo', vf="scale_npp=format=yuv420p,hwdownload,format=yuv420p", pix_fmt='yuvj420p', muxdelay=0, r=1)
     # .output('pipe:', format='rawvideo', pix_fmt='rgb24')
     # .output('pipe:', format='rawvideo', pix_fmt='rgb24', vframes=1)
+    # .global_args('-nostats', "-loglevel","debug", "-fflags", "discardcorrupt")
     .run_async(pipe_stdout=True)
 )
 
@@ -133,7 +137,7 @@ class YUV2BGR_GPU():
 
         return results.astype(np.uint8)
 
-C = YUV2BGR_GPU()
+C = YUV2BGR_GPU(w=width, h=height)
 
 n = width*height
 yuv_times = []
@@ -141,6 +145,7 @@ rgb_conversion_times = []
 trgb_conversion_times = []    
 
 while True:
+    # time.sleep(0.5)
     # in_bytes = process.stdout.read(width * height * 3)
     in_bytes = process.stdout.read(int(width*height*6//4))
     if not in_bytes:
@@ -178,4 +183,4 @@ while True:
     
 
 
-import pdb; pdb.set_trace()
+# import pdb; pdb.set_trace()
