@@ -1,6 +1,8 @@
 import cv2
+import time
 import ffmpeg
 import numpy as np
+import tensorflow as tf
 
 vp = '/home/dh/Videos/CatDog.avi'
 
@@ -89,6 +91,33 @@ def ConvertYUVtoRGB(yuv_planes):
      
     return rgb
 
+class YUV2RGB_GPU():
+    def __init__(self, w=1920, h=1080): 
+        config = tf.ConfigProto(gpu_options=tf.GPUOptions(per_process_gpu_memory_fraction=0.03))
+        self.y = tf.placeholder(shape=(1, h, w), dtype=tf.float32)
+        self.u = tf.placeholder(shape=(1, h, w), dtype=tf.float32) 
+        self.v = tf.placeholder(shape=(1, h, w), dtype=tf.float32)
+        r = self.y+1.371*(self.v-128)
+        g = self.y+0.338* (self.u-128)-0.698*(self.v-128)
+        b = self.y+1.732*(self.u-128)
+        result = tf.stack([b, g, r], axis=-1)
+        self.result = tf.squeeze(tf.clip_by_value(result, 0, 255))
+        self.sess = tf.Session(config=config)
+
+    def convert(self, yuv_planes):
+        y = yuv_planes[:,:,0]
+        u = yuv_planes[:,:,1]
+        v = yuv_planes[:,:,2]
+        y = y.reshape((1, y.shape[0], y.shape[1]))
+        u = u.reshape((1, u.shape[0], u.shape[1]))
+        v = v.reshape((1, v.shape[0], v.shape[1]))
+        results = self.sess.run(self.result, feed_dict={self.y:y, self.u: u, self.v: v})
+
+        return results.astype(np.uint8)
+
+C = YUV2RGB_GPU()
+
+
 
 def bytes2yuv(x, w, h):
     k = w*h
@@ -101,6 +130,9 @@ def bytes2yuv(x, w, h):
     return image
 
 n = width*height
+yuv_times = []
+rgb_conversion_times = []
+trgb_conversion_times = []    
 
 while True:
     # in_bytes = process.stdout.read(width * height * 3)
@@ -113,10 +145,26 @@ while True:
     #     .reshape([height, width, 3])
     # )
 
+    
+    tic = time.time()
     yuv_in_frame = bytes2yuv(in_bytes, width, height)   
-    rgb_in_frame = YUV2RGB(yuv_in_frame)
+    toc = time.time()
+    yuv_time = toc - tic
+    # print('Time taken for yuv decoding using GPU', yuv_time)
+    yuv_times.append(yuv_time)
+    
+    rgb_in_frame = C.convert(yuv_in_frame)
+    toc2 = time.time()
+    rgb_conversion_time = toc2 - toc
+    rgb_conversion_times.append(rgb_conversion_time)
+    # print('Time taken for rgb conversion', rgb_conversion_time)
+    
     # rgb_in_frame = in_frame
-    # rgb_in_frame = ConvertYUVtoRGB(in_frame)
+
+    # rgb_in_frame = ConvertYUVtoRGB(yuv_in_frame)
+    # trgb_conversion_time = time.time() - toc2
+    # trgb_conversion_times.append(trgb_conversion_time)
+
     #print(rgb_in_frame.shape)
     cv2.imshow('', rgb_in_frame)
     # print(in_frame.shape)
