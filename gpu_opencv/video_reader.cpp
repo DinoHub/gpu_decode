@@ -1,3 +1,27 @@
+// #include <iostream>
+// #include <string.h>
+// #include "opencv2/core/core.hpp"
+// #include "opencv2/opencv.hpp"
+// #include "opencv2/videoio/videoio.hpp"
+// #include "opencv2/highgui/highgui.hpp"
+// #include "opencv2/video.hpp"
+// #include "opencv2/imgproc/imgproc.hpp"
+
+// using namespace std;
+// using namespace cv;
+
+
+// int main(int argc, char const *argv[])
+// {
+
+//     const std::string fname(argv[1]);
+
+//     VideoCapture cap(fname);
+//     return 0;
+// }
+
+
+
 #include <iostream>
 
 #include "opencv2/opencv_modules.hpp"
@@ -16,8 +40,10 @@
 
 int main(int argc, const char* argv[])
 {
-    if (argc != 2)
+    if (argc != 2){
+        std::cout << "Please give video input file as argument\n" << std::endl;
         return -1;
+    }
 
     const std::string fname(argv[1]);
 
