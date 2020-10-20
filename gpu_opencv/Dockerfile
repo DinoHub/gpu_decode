@@ -86,8 +86,9 @@ cmake -D CMAKE_BUILD_TYPE=RELEASE \
     -D WITH_CUBLAS=1 \
     -D OPENCV_EXTRA_MODULES_PATH=~/opencv_contrib/modules \
     -D HAVE_opencv_python3=ON \
-    -D PYTHON_EXECUTABLE=~/.virtualenvs/opencv_cuda/bin/python \
     -D OPENCV_GENERATE_PKGCONFIG=ON\
+    -D WITH_OPENGL=ON\
+    -D WITH_NVCUVID=ON\
     -D BUILD_EXAMPLES=ON ..
 
 RUN cd build && make -j10
@@ -95,3 +96,5 @@ RUN cd build && make install && ldconfig
 
 WORKDIR $HOME
 RUN rm opencv.zip opencv_contrib.zip
+
+ENV NVIDIA_DRIVER_CAPABILITIES=all

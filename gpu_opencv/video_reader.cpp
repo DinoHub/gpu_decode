@@ -34,7 +34,7 @@
 #include <numeric>
 
 #include <opencv2/core.hpp>
-#include <opencv2/core/opengl.hpp>
+// #include <opencv2/core/opengl.hpp>
 #include <opencv2/cudacodec.hpp>
 #include <opencv2/highgui.hpp>
 
@@ -48,13 +48,13 @@ int main(int argc, const char* argv[])
     const std::string fname(argv[1]);
 
     cv::namedWindow("CPU", cv::WINDOW_NORMAL);
-    cv::namedWindow("GPU", cv::WINDOW_OPENGL);
-    cv::cuda::setGlDevice();
+    // cv::namedWindow("GPU", cv::WINDOW_NORMAL);
+    // cv::cuda::setGlDevice();
 
     cv::Mat frame;
     cv::VideoCapture reader(fname);
 
-    cv::cuda::GpuMat d_frame;
+    // cv::cuda::GpuMat d_frame;
     cv::Ptr<cv::cudacodec::VideoReader> d_reader = cv::cudacodec::createVideoReader(fname);
 
     cv::TickMeter tm;
@@ -78,34 +78,34 @@ int main(int argc, const char* argv[])
             break;
     }
 
-    for (;;)
-    {
-        tm.reset(); tm.start();
-        if (!d_reader->nextFrame(d_frame))
-            break;
-        tm.stop();
-        gpu_times.push_back(tm.getTimeMilli());
-        gpu_frame_count++;
+    // for (;;)
+    // {
+    //     tm.reset(); tm.start();
+    //     if (!d_reader->nextFrame(d_frame))
+    //         break;
+    //     tm.stop();
+    //     gpu_times.push_back(tm.getTimeMilli());
+    //     gpu_frame_count++;
 
-        cv::imshow("GPU", d_frame);
+    //     cv::imshow("GPU", d_frame);
 
-        if (cv::waitKey(3) > 0)
-            break;
-    }
+    //     if (cv::waitKey(3) > 0)
+    //         break;
+    // }
 
-    if (!cpu_times.empty() && !gpu_times.empty())
-    {
-        std::cout << std::endl << "Results:" << std::endl;
+    // if (!cpu_times.empty() && !gpu_times.empty())
+    // {
+    //     std::cout << std::endl << "Results:" << std::endl;
 
-        std::sort(cpu_times.begin(), cpu_times.end());
-        std::sort(gpu_times.begin(), gpu_times.end());
+    //     std::sort(cpu_times.begin(), cpu_times.end());
+    //     std::sort(gpu_times.begin(), gpu_times.end());
 
-        double cpu_avg = std::accumulate(cpu_times.begin(), cpu_times.end(), 0.0) / cpu_times.size();
-        double gpu_avg = std::accumulate(gpu_times.begin(), gpu_times.end(), 0.0) / gpu_times.size();
+    //     double cpu_avg = std::accumulate(cpu_times.begin(), cpu_times.end(), 0.0) / cpu_times.size();
+    //     double gpu_avg = std::accumulate(gpu_times.begin(), gpu_times.end(), 0.0) / gpu_times.size();
 
-        std::cout << "CPU : Avg : " << cpu_avg << " ms FPS : " << 1000.0 / cpu_avg << " Frames " << cpu_frame_count << std::endl;
-        std::cout << "GPU : Avg : " << gpu_avg << " ms FPS : " << 1000.0 / gpu_avg << " Frames " << gpu_frame_count << std::endl;
-    }
+    //     std::cout << "CPU : Avg : " << cpu_avg << " ms FPS : " << 1000.0 / cpu_avg << " Frames " << cpu_frame_count << std::endl;
+    //     std::cout << "GPU : Avg : " << gpu_avg << " ms FPS : " << 1000.0 / gpu_avg << " Frames " << gpu_frame_count << std::endl;
+    // }
 
     return 0;
 }
